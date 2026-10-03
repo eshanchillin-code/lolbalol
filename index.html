@@ -6,7 +6,7 @@
 <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.21.3/index.js"></script>
 <style>
 :root{--bg:#0a0a0b;--panel:#121214;--card:#1b1b1f;--line:#26262b;--red:#d1122f;--red2:#7a0a1c;--tx:#f3f3f4;--mu:#8d8d96}
-*{box-sizing:border-box;margin:0}html,body{height:100%}
+*{box-sizing:border-box;margin:0}html,body{height:100%;height:100dvh}
 body{background:var(--bg);color:var(--tx);font:15px/1.4 -apple-system,"Segoe UI",Inter,system-ui,sans-serif;overflow:hidden}
 button,input{font:inherit;color:inherit}button{cursor:pointer;background:none;border:0}
 input{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%;outline:0}
@@ -19,8 +19,8 @@ input:focus,button:focus-visible{outline:2px solid var(--red);outline-offset:1px
 .pw{position:relative}.pw button{position:absolute;right:8px;top:8px;padding:4px 8px;color:var(--mu)}
 .err{color:#ff6b7f;font-size:13px;min-height:18px;text-align:center}
 @keyframes up{from{opacity:0;transform:translateY(10px)}}
-.app{display:grid;grid-template-columns:360px 1fr;height:100%}
-.side{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.app{display:grid;grid-template-columns:360px minmax(0,1fr);grid-template-rows:minmax(0,1fr);height:100%;height:100dvh;overflow:hidden}
+.side{height:100%;overflow:hidden;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
 .top{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;font-weight:700;font-size:18px}
 .top button{font-size:20px;padding:4px 8px}.srch{padding:0 12px 8px}
 .list{overflow:auto;flex:1}
@@ -28,10 +28,10 @@ input:focus,button:focus-visible{outline:2px solid var(--red);outline-offset:1px
 .row:hover,.row.on{background:var(--card)}.row .m{flex:1;min-width:0}.row .n{font-weight:600}
 .row .p{color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}.row.unr .p{color:var(--tx);font-weight:600}
 .dot{width:10px;height:10px;border-radius:50%;background:var(--red)}
-.main{display:flex;flex-direction:column;min-height:0;background:var(--bg);position:relative}
-.head{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
+.main{display:flex;flex-direction:column;min-height:0;min-width:0;height:100%;overflow:hidden;background:var(--bg);position:relative}
+.head{flex:none;display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
 .head .av{width:38px;height:38px}.head .back{display:none;font-size:22px}
-.msgs{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:3px}
+.msgs{flex:1 1 0;min-height:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:3px}
 .msg{max-width:75%;position:relative;animation:up .2s;align-self:flex-start}
 .msg.me{align-self:flex-end}
 .bub{background:var(--card);padding:8px 13px;border-radius:20px;word-break:break-word;white-space:pre-wrap;cursor:pointer}
@@ -46,8 +46,8 @@ input:focus,button:focus-visible{outline:2px solid var(--red);outline-offset:1px
 .menu{position:absolute;z-index:20;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:6px;box-shadow:0 10px 40px #000a;animation:up .15s}
 .menu .rr{display:flex;gap:2px;padding:4px}.menu .rr button{font-size:22px;padding:2px 5px;border-radius:8px}.menu .rr button:hover{background:var(--line)}
 .menu .it{display:block;width:100%;text-align:left;padding:8px 12px;border-radius:8px}.menu .it:hover{background:var(--line)}
-.typing{height:20px;padding:0 20px;color:var(--mu);font-size:12px}
-.comp{padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:var(--panel);border-top:1px solid var(--line)}
+.typing{flex:none;height:20px;padding:0 20px;color:var(--mu);font-size:12px}
+.comp{flex:none;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:var(--panel);border-top:1px solid var(--line)}
 .rpl{display:flex;justify-content:space-between;font-size:12px;color:var(--mu);border-left:3px solid var(--red);padding:2px 8px;margin-bottom:6px}
 .bar{display:flex;gap:6px;align-items:center}.bar button{font-size:22px;padding:6px}.bar input{border-radius:22px}
 .pick{position:absolute;bottom:70px;left:12px;z-index:15}emoji-picker{--background:#1b1b1f;--border-color:#26262b;--indicator-color:#d1122f;height:340px;width:min(340px,92vw)}
@@ -57,15 +57,15 @@ input:focus,button:focus-visible{outline:2px solid var(--red);outline-offset:1px
 .sheet h3{padding:8px 12px}.sk{height:60px;margin:8px 16px;border-radius:12px;background:linear-gradient(90deg,var(--card),var(--line),var(--card));background-size:200%;animation:sh 1.2s infinite}
 @keyframes sh{to{background-position:-200%}}
 .off{background:var(--red2);text-align:center;font-size:12px;padding:3px}
-@media(max-width:760px){.app{grid-template-columns:1fr}.main{display:none;position:fixed;inset:0;z-index:10}.app.chat .main{display:flex}.head .back{display:block}.side{border:0}}
+@media(max-width:760px){.app{grid-template-columns:minmax(0,1fr)}.main{display:none;position:fixed;inset:0;height:100dvh;z-index:10}.app.chat .main{display:flex}.head .back{display:block}.side{border:0}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style></head><body>
 <div id="root"></div>
 <script>
-/* ====== SUPABASE CONFIG ====== */
+/* ====== 1. PUT YOUR SUPABASE VALUES HERE (Project Settings > API) ====== */
 const SUPABASE_URL = "https://kmvaylqkmyjzegkgnpes.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_vx6S5194jSl6ewSW4coSUw_8V190l-K"; // publishable key (safe to be public)
-/* ============================= */
+/* ======================================================================= */
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $ = (s,e=document)=>e.querySelector(s), root=$("#root");
 const esc = s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -282,7 +282,7 @@ function subscribe(){
   S.chan&&sb.removeChannel(S.chan);
   S.chan=sb.channel("db")
    .on("postgres_changes",{event:"INSERT",schema:"public",table:"messages"},({new:m})=>{
-      if(S.active?.id==m.conv_id){ upsertMsg(m); drawMsgs("near"); if(m.sender_id!=S.me.id) markRead(); }  // same id => overwrite, never duplicate
+      if(S.active?.id==m.conv_id){ if(S.msgs.has(m.id)){upsertMsg(m)}else{upsertMsg(m)} drawMsgs("near"); if(m.sender_id!=S.me.id) markRead(); }  // same id => overwrite, never duplicate
       loadConvs();if(m.sender_id!=S.me.id&&document.hidden&&"Notification" in window&&Notification.permission=="granted") new Notification("New message");})
    .on("postgres_changes",{event:"UPDATE",schema:"public",table:"messages"},({new:m})=>{if(S.msgs.has(m.id)){upsertMsg(m);drawMsgs("near")}})
    .on("postgres_changes",{event:"*",schema:"public",table:"reactions"},({eventType,new:n,old:o})=>{
