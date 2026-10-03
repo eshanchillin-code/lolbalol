@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ember DM</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.21.3/index.js"></script>
+<style>
+:root{--bg:#0a0a0b;--panel:#121214;--card:#1b1b1f;--line:#26262b;--red:#d1122f;--red2:#7a0a1c;--tx:#f3f3f4;--mu:#8d8d96}
+*{box-sizing:border-box;margin:0}html,body{height:100%}
+body{background:var(--bg);color:var(--tx);font:15px/1.4 -apple-system,"Segoe UI",Inter,system-ui,sans-serif;overflow:hidden}
+button,input{font:inherit;color:inherit}button{cursor:pointer;background:none;border:0}
+input{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%;outline:0}
+input:focus,button:focus-visible{outline:2px solid var(--red);outline-offset:1px}
+.btn{background:linear-gradient(135deg,var(--red),var(--red2));border-radius:12px;padding:12px;font-weight:600;width:100%}
+.btn:disabled{opacity:.5}.ghost{color:var(--mu)}.av{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--red),#2a0a10);display:grid;place-items:center;font-weight:700;flex:none}
+.auth{height:100%;display:grid;place-items:center;background:radial-gradient(circle at 50% 0,#3a0610,var(--bg) 60%)}
+.auth form{width:min(360px,92vw);display:grid;gap:12px;animation:up .5s}
+.auth h1{font-size:34px;text-align:center;letter-spacing:-1px}.auth h1 b{color:var(--red)}
+.pw{position:relative}.pw button{position:absolute;right:8px;top:8px;padding:4px 8px;color:var(--mu)}
+.err{color:#ff6b7f;font-size:13px;min-height:18px;text-align:center}
+@keyframes up{from{opacity:0;transform:translateY(10px)}}
+.app{display:grid;grid-template-columns:360px 1fr;height:100%}
+.side{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.top{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;font-weight:700;font-size:18px}
+.top button{font-size:20px;padding:4px 8px}.srch{padding:0 12px 8px}
+.list{overflow:auto;flex:1}
+.row{display:flex;gap:12px;padding:10px 16px;align-items:center;width:100%;text-align:left;transition:background .15s}
+.row:hover,.row.on{background:var(--card)}.row .m{flex:1;min-width:0}.row .n{font-weight:600}
+.row .p{color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}.row.unr .p{color:var(--tx);font-weight:600}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--red)}
+.main{display:flex;flex-direction:column;min-height:0;background:var(--bg);position:relative}
+.head{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
+.head .av{width:38px;height:38px}.head .back{display:none;font-size:22px}
+.msgs{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:3px}
+.msg{max-width:75%;position:relative;animation:up .2s;align-self:flex-start}
+.msg.me{align-self:flex-end}
+.bub{background:var(--card);padding:8px 13px;border-radius:20px;word-break:break-word;white-space:pre-wrap;cursor:pointer}
+.me .bub{background:linear-gradient(135deg,var(--red),var(--red2))}
+.bub img,.bub video{max-width:260px;width:100%;border-radius:14px;display:block;margin:-2px 0}
+.rp{font-size:12px;color:var(--mu);border-left:3px solid var(--red);padding:2px 8px;margin-bottom:3px;cursor:pointer}
+.fw{font-size:11px;color:var(--mu);margin-bottom:2px}
+.rx{display:flex;gap:3px;margin:-6px 8px 4px;position:relative;z-index:1}.me .rx{justify-content:flex-end}
+.rx span{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:0 6px;font-size:13px}
+.st{font-size:11px;color:var(--mu);text-align:right;padding:0 6px}.st.fail{color:#ff6b7f;cursor:pointer}
+.del{font-style:italic;color:var(--mu)}
+.menu{position:absolute;z-index:20;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:6px;box-shadow:0 10px 40px #000a;animation:up .15s}
+.menu .rr{display:flex;gap:2px;padding:4px}.menu .rr button{font-size:22px;padding:2px 5px;border-radius:8px}.menu .rr button:hover{background:var(--line)}
+.menu .it{display:block;width:100%;text-align:left;padding:8px 12px;border-radius:8px}.menu .it:hover{background:var(--line)}
+.typing{height:20px;padding:0 20px;color:var(--mu);font-size:12px}
+.comp{padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:var(--panel);border-top:1px solid var(--line)}
+.rpl{display:flex;justify-content:space-between;font-size:12px;color:var(--mu);border-left:3px solid var(--red);padding:2px 8px;margin-bottom:6px}
+.bar{display:flex;gap:6px;align-items:center}.bar button{font-size:22px;padding:6px}.bar input{border-radius:22px}
+.pick{position:absolute;bottom:70px;left:12px;z-index:15}emoji-picker{--background:#1b1b1f;--border-color:#26262b;--indicator-color:#d1122f;height:340px;width:min(340px,92vw)}
+.empty{margin:auto;text-align:center;color:var(--mu)}
+.modal{position:fixed;inset:0;background:#000a;display:grid;place-items:center;z-index:50;animation:up .2s}
+.sheet{background:var(--panel);border:1px solid var(--line);border-radius:20px;width:min(420px,92vw);max-height:80vh;overflow:auto;padding:12px}
+.sheet h3{padding:8px 12px}.sk{height:60px;margin:8px 16px;border-radius:12px;background:linear-gradient(90deg,var(--card),var(--line),var(--card));background-size:200%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200%}}
+.off{background:var(--red2);text-align:center;font-size:12px;padding:3px}
+@media(max-width:760px){.app{grid-template-columns:1fr}.main{display:none;position:fixed;inset:0;z-index:10}.app.chat .main{display:flex}.head .back{display:block}.side{border:0}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<div id="root"></div>
+<script>
+/* ====== SUPABASE CONFIG ====== */
+const SUPABASE_URL = "https://kmvaylqkmyjzegkgnpes.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_vx6S5194jSl6ewSW4coSUw_8V190l-K"; // publishable key (safe to be public)
+/* ============================= */
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const $ = (s,e=document)=>e.querySelector(s), root=$("#root");
+const esc = s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const EMOJIS=["❤️","😂","😮","😢","😡","👍"];
+const S={me:null,convs:[],active:null,msgs:new Map(),rx:new Map(),reply:null,oldest:null,blocked:[],typingT:null,chan:null,tc:null};
+const toEmail=u=>u.toLowerCase()+"@ember-dm.app";
+const ini=n=>esc((n||"?")[0].toUpperCase());
+const tm=d=>{d=new Date(d);return d.toDateString()==new Date().toDateString()?d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}):d.toLocaleDateString([],{month:"short",day:"numeric"})};
+
+/* ---------- AUTH ---------- */
+function authView(mode="in"){
+  root.innerHTML=`<div class="auth"><form id="f"><h1>ember<b>.</b></h1>
+  <input id="u" placeholder="Username" autocomplete="username" required minlength="3" maxlength="20" pattern="[A-Za-z0-9_.]+">
+  ${mode=="up"?'<input id="dn" placeholder="Display name" required maxlength="40"><input id="bio" placeholder="Bio (optional)" maxlength="150">':""}
+  <div class="pw"><input id="p" type="password" placeholder="Password (min 8)" minlength="8" required autocomplete="${mode=="up"?"new":"current"}-password"><button type="button" id="eye" aria-label="Show or hide password">👁</button></div>
+  <div class="err" id="e"></div><button class="btn" id="go">${mode=="up"?"Create account":"Log in"}</button>
+  <button type="button" class="ghost" id="sw">${mode=="up"?"Have an account? Log in":"New here? Sign up"}</button>
+  <button type="button" class="ghost" id="fp" style="font-size:12px">Forgot password?</button></form></div>`;
+  $("#eye").onclick=()=>{const p=$("#p");p.type=p.type=="password"?"text":"password"};
+  $("#sw").onclick=()=>authView(mode=="up"?"in":"up");
+  $("#fp").onclick=()=>$("#e").textContent="Password reset needs an email address, which this username-only app doesn't collect. Ask an admin to reset it in Supabase.";
+  $("#f").onsubmit=async ev=>{ev.preventDefault();const b=$("#go");b.disabled=true;$("#e").textContent="";
+    const u=$("#u").value.trim().toLowerCase(),p=$("#p").value;
+    try{
+      if(mode=="up"){
+        const {data:ex}=await sb.from("profiles").select("id").eq("username",u).maybeSingle();
+        if(ex) throw Error("That username is taken");
+        const {data,error}=await sb.auth.signUp({email:toEmail(u),password:p});
+        if(error) throw error; if(!data.session) throw Error("Turn OFF 'Confirm email' in Supabase > Auth > Providers > Email");
+        const {error:e2}=await sb.from("profiles").insert({id:data.user.id,username:u,display_name:$("#dn").value.trim(),bio:$("#bio").value.trim()});
+        if(e2) throw e2;
+      } else {
+        const {error}=await sb.auth.signInWithPassword({email:toEmail(u),password:p});
+        if(error) throw Error("Incorrect username or password");
+      }
+      boot();
+    }catch(x){$("#e").textContent=x.message||"Something went wrong";b.disabled=false}};
+}
+
+/* ---------- BOOT ---------- */
+async function boot(){
+  const {data:{session}}=await sb.auth.getSession(); if(!session) return authView();
+  const {data:me}=await sb.from("profiles").select("*").eq("id",session.user.id).single();
+  if(!me){await sb.auth.signOut();return authView()}
+  S.me=me; shell(); await loadConvs(); subscribe();
+}
+function shell(){
+  root.innerHTML=`<div class="app" id="app"><aside class="side"><div class="top"><span>@${esc(S.me.username)}</span><span><button id="newb" aria-label="New message">✏️</button><button id="setb" aria-label="Settings">⚙️</button></span></div>
+  <div class="srch"><input id="q" placeholder="Search username to message" aria-label="Search users"></div><div class="list" id="list"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div></aside>
+  <section class="main" id="main"><div class="empty"><h2>Your messages</h2><p>Search a username to start chatting.</p></div></section></div>`;
+  let t;$("#q").oninput=e=>{clearTimeout(t);t=setTimeout(()=>search(e.target.value),250)};
+  $("#newb").onclick=()=>$("#q").focus(); $("#setb").onclick=settings;
+}
+
+/* ---------- INBOX ---------- */
+async function loadConvs(){
+  const [{data:cs},{data:hid},{data:bl}]=await Promise.all([sb.from("conversations").select("*"),sb.from("hidden").select("*"),sb.from("blocks").select("blocked")]);
+  S.blocked=(bl||[]).map(b=>b.blocked);
+  const ids=[...new Set((cs||[]).map(c=>c.user_a==S.me.id?c.user_b:c.user_a))];
+  const {data:ps}=ids.length?await sb.from("profiles").select("*").in("id",ids):{data:[]};
+  const pm=Object.fromEntries((ps||[]).map(p=>[p.id,p]));
+  const hm=Object.fromEntries((hid||[]).map(h=>[h.conv_id,h.at]));
+  const out=await Promise.all((cs||[]).map(async c=>{
+    const other=pm[c.user_a==S.me.id?c.user_b:c.user_a];
+    let q=sb.from("messages").select("*").eq("conv_id",c.id).order("created_at",{ascending:false}).limit(1);
+    if(hm[c.id]) q=q.gt("created_at",hm[c.id]);
+    const {data:l}=await q; const {count}=await sb.from("messages").select("id",{count:"exact",head:true}).eq("conv_id",c.id).neq("sender_id",S.me.id).is("read_at",null);
+    return {...c,other,last:l?.[0],unread:count||0,hidden:hm[c.id]};
+  }));
+  S.convs=out.filter(c=>c.last).sort((a,b)=>new Date(b.last.created_at)-new Date(a.last.created_at));
+  drawList();
+}
+const prev=m=>m.deleted?"Message unsent":m.media_type=="image"?"📷 Photo":m.media_type=="video"?"🎥 Video":m.body;
+function drawList(){
+  const l=$("#list"); if(!l) return;
+  l.innerHTML=S.convs.length?S.convs.map(c=>`<button class="row ${S.active?.id==c.id?"on":""} ${c.unread?"unr":""}" data-id="${c.id}"><div class="av">${ini(c.other.display_name)}</div><div class="m"><div class="n">${esc(c.other.display_name)}</div><div class="p">${c.last.sender_id==S.me.id?"You: ":""}${esc(prev(c.last))} · ${tm(c.last.created_at)}</div></div>${c.unread?'<span class="dot"></span>':""}</button>`).join(""):`<div class="empty" style="padding:30px">No conversations yet.<br>Search a username above.</div>`;
+  l.querySelectorAll(".row").forEach(r=>r.onclick=()=>openConv(S.convs.find(c=>c.id==r.dataset.id)));
+}
+async function search(v){
+  v=v.trim().replace(/^@/,"").toLowerCase(); if(!v) return drawList();
+  const {data}=await sb.from("profiles").select("*").ilike("username",v.replace(/[%_]/g,"")+"%").neq("id",S.me.id).limit(20);
+  $("#list").innerHTML=(data||[]).map(p=>`<button class="row" data-id="${p.id}"><div class="av">${ini(p.display_name)}</div><div class="m"><div class="n">${esc(p.display_name)}</div><div class="p">@${esc(p.username)}${p.bio?" · "+esc(p.bio):""}</div></div></button>`).join("")||'<div class="empty" style="padding:30px">No users found</div>';
+  $("#list").querySelectorAll(".row").forEach(r=>r.onclick=async()=>{
+    const p=data.find(x=>x.id==r.dataset.id);const {data:cid,error}=await sb.rpc("get_or_create_dm",{other:p.id});if(error) return alert("Couldn't open chat");
+    await sb.from("hidden").delete().eq("conv_id",cid).eq("user_id",S.me.id);
+    $("#q").value="";openConv({id:cid,other:p,unread:0});drawList()});
+}
+
+/* ---------- CHAT ---------- */
+async function openConv(c){
+  S.active=c;S.msgs=new Map();S.rx=new Map();S.reply=null;S.oldest=null;
+  $("#app").classList.add("chat");
+  const blocked=S.blocked.includes(c.other.id);
+  $("#main").innerHTML=`<div class="head"><button class="back" id="bk" aria-label="Back">←</button><div class="av">${ini(c.other.display_name)}</div><div style="flex:1"><b>${esc(c.other.display_name)}</b><div class="ghost" style="font-size:12px">@${esc(c.other.username)}</div></div><button id="more" aria-label="Chat options" style="font-size:20px">⋮</button></div>
+  <div class="msgs" id="ms"></div><div class="typing" id="ty"></div>
+  <div class="comp">${blocked?'<div class="empty">You blocked this account.</div>':`<div id="rpl"></div><div class="bar"><button id="emo" aria-label="Emoji">😊</button><button id="att" aria-label="Attach photo or video">📎</button><input type="file" id="fi" accept="image/*,video/*" hidden><input id="tx" placeholder="Message…" aria-label="Message" autocomplete="off"><button id="snd" aria-label="Send" style="color:var(--red)">➤</button></div>`}</div>`;
+  $("#bk").onclick=()=>{$("#app").classList.remove("chat");S.active=null;drawList()};
+  $("#more").onclick=e=>chatMenu(e);
+  if(!blocked){
+    const tx=$("#tx");
+    tx.onkeydown=e=>{if(e.key=="Enter"&&!e.shiftKey){e.preventDefault();sendText()}};
+    tx.oninput=()=>{if(!S.typingT) S.tc?.send({type:"broadcast",event:"t",payload:{u:S.me.id}});clearTimeout(S.typingT);S.typingT=setTimeout(()=>S.typingT=null,2000)};
+    $("#snd").onclick=sendText;
+    $("#att").onclick=()=>$("#fi").click(); $("#fi").onchange=e=>{if(e.target.files[0]) sendMedia(e.target.files[0]);e.target.value=""};
+    $("#emo").onclick=()=>{const o=$(".pick");if(o) return o.remove();const d=document.createElement("div");d.className="pick";d.innerHTML="<emoji-picker></emoji-picker>";$("#main").append(d);
+      $("emoji-picker",d).addEventListener("emoji-click",e=>{tx.value+=e.detail.unicode;tx.focus()})};
+  }
+  S.tc&&sb.removeChannel(S.tc);
+  S.tc=sb.channel("typing:"+c.id).on("broadcast",{event:"t"},({payload})=>{if(payload.u==S.me.id) return;const t=$("#ty");if(!t) return;t.textContent=c.other.display_name+" is typing…";clearTimeout(S.tyc);S.tyc=setTimeout(()=>t.textContent="",3000)}).subscribe();
+  await loadMsgs(true); markRead();
+}
+async function loadMsgs(first){
+  let q=sb.from("messages").select("*").eq("conv_id",S.active.id).order("created_at",{ascending:false}).limit(40);
+  if(S.active.hidden) q=q.gt("created_at",S.active.hidden); if(S.oldest) q=q.lt("created_at",S.oldest);
+  const {data}=await q; const rows=data||[];
+  rows.forEach(m=>S.msgs.set(m.id,{...m,status:"ok"}));
+  if(rows.length) S.oldest=rows[rows.length-1].created_at; S.more=rows.length==40;
+  if(rows.length){const {data:rs}=await sb.from("reactions").select("*").in("message_id",rows.map(m=>m.id));(rs||[]).forEach(r=>setRx(r))}
+  drawMsgs(first?"bottom":"keep");
+}
+function setRx(r){const m=S.rx.get(r.message_id)||{};m[r.user_id]=r.emoji;S.rx.set(r.message_id,m)}
+function drawMsgs(scroll){
+  const ms=$("#ms"); if(!ms) return; const h=ms.scrollHeight,t=ms.scrollTop;
+  const list=[...S.msgs.values()].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+  const lastMine=[...list].reverse().find(m=>m.sender_id==S.me.id);
+  ms.innerHTML=(S.more?'<button class="ghost" id="old">Load older</button>':"")+list.map(m=>{
+    const me=m.sender_id==S.me.id,rp=m.reply_to&&S.msgs.get(m.reply_to);
+    const rx=Object.values(S.rx.get(m.id)||{});
+    const body=m.deleted?'<span class="del">Message unsent</span>':(m.media_type=="image"?`<img src="${esc(m.media_url)}" loading="lazy" alt="Photo">`:m.media_type=="video"?`<video src="${esc(m.media_url)}" controls preload="metadata"></video>`:"")+(m.body?esc(m.body):"");
+    const st=!me?"":m.status=="sending"?"Sending…":m.status=="fail"?"Failed · tap to retry":m==lastMine?(m.read_at?"Seen":"Sent"):"";
+    return `<div class="msg ${me?"me":""}" id="m-${m.id}" data-id="${m.id}">${m.forwarded?'<div class="fw">↪ Forwarded</div>':""}${m.reply_to?`<div class="rp" data-j="${m.reply_to}">↩ ${rp?esc(rp.deleted?"Unsent message":prev(rp)).slice(0,60):"Original message"}</div>`:""}<div class="bub">${body}</div>${rx.length?`<div class="rx">${[...new Set(rx)].map(e=>`<span>${e}${rx.filter(x=>x==e).length>1?" "+rx.filter(x=>x==e).length:""}</span>`).join("")}</div>`:""}${st?`<div class="st ${m.status=="fail"?"fail":""}" data-r="${m.id}">${st}</div>`:""}</div>`}).join("")||'<div class="empty">Say hi 👋</div>';
+  ms.querySelectorAll(".bub").forEach(b=>b.onclick=e=>{if(e.target.tagName=="VIDEO") return;msgMenu(b.parentElement.dataset.id,e)});
+  ms.querySelectorAll(".rp").forEach(r=>r.onclick=()=>{const t=$("#m-"+r.dataset.j);t&&t.scrollIntoView({behavior:"smooth",block:"center"})});
+  ms.querySelectorAll("[data-r]").forEach(r=>r.onclick=()=>{const m=S.msgs.get(r.dataset.r);m?.status=="fail"&&transmit(m)});
+  const o=$("#old");if(o) o.onclick=async()=>{await loadMsgs(false)};
+  if(scroll=="bottom") ms.scrollTop=ms.scrollHeight; else if(scroll=="keep") ms.scrollTop=t+(ms.scrollHeight-h);
+  else if(scroll=="near"&&h-t-ms.clientHeight<150) ms.scrollTop=ms.scrollHeight;
+}
+/* Dedupe: one message == one client UUID. Map keyed by id, DB primary key on id, retries reuse same id. */
+function upsertMsg(m){const old=S.msgs.get(m.id);S.msgs.set(m.id,{...(old||{}),...m,status:"ok"})}
+async function transmit(m){
+  m.status="sending";drawMsgs("near");
+  const {id,conv_id,sender_id,body,media_url,media_type,reply_to,forwarded,created_at}=m;
+  const {error}=await sb.from("messages").insert({id,conv_id,sender_id,body,media_url,media_type,reply_to,forwarded,created_at});
+  if(error&&error.code!="23505"){m.status="fail";drawMsgs("near");return false}   // 23505 = already stored -> treat as success
+  m.status="ok";drawMsgs("near");loadConvs();return true;
+}
+function queue(p){
+  const m={id:crypto.randomUUID(),conv_id:S.active.id,sender_id:S.me.id,body:"",media_url:null,media_type:null,reply_to:S.reply?.id||null,forwarded:false,deleted:false,read_at:null,created_at:new Date().toISOString(),status:"sending",...p};
+  S.msgs.set(m.id,m);S.reply=null;drawReply();drawMsgs("bottom");return m;
+}
+function sendText(){const tx=$("#tx");const v=tx.value.trim();if(!v) return;tx.value="";transmit(queue({body:v}))}
+async function sendMedia(f){
+  const isV=f.type.startsWith("video/"),isI=f.type.startsWith("image/");
+  if(!isV&&!isI) return alert("Only photos and videos are allowed"); if(f.size>25*1024*1024) return alert("Max file size is 25 MB");
+  const m=queue({body:"",media_type:isV?"video":"image"});
+  const path=`${S.me.id}/${m.id}.${(f.name.split(".").pop()||"bin").toLowerCase().replace(/[^a-z0-9]/g,"")}`;
+  const {error}=await sb.storage.from("media").upload(path,f,{upsert:true,contentType:f.type});
+  if(error){m.status="fail";m.media_url=null;drawMsgs("near");return}
+  m.media_url=sb.storage.from("media").getPublicUrl(path).data.publicUrl;transmit(m);
+}
+function drawReply(){const r=$("#rpl");if(!r) return;r.innerHTML=S.reply?`<div class="rpl"><span>Replying: ${esc(prev(S.reply)).slice(0,60)}</span><button id="xr" aria-label="Cancel reply">✕</button></div>`:"";if(S.reply) $("#xr").onclick=()=>{S.reply=null;drawReply()}}
+async function markRead(){if(!S.active) return;await sb.rpc("mark_read",{c:S.active.id});const c=S.convs.find(x=>x.id==S.active.id);if(c){c.unread=0;drawList()}}
+
+/* ---------- MENUS ---------- */
+function place(menu,e){document.querySelector(".menu")?.remove();document.body.append(menu);const r=menu.getBoundingClientRect();menu.style.left=Math.max(8,Math.min(e.clientX-r.width/2,innerWidth-r.width-8))+"px";menu.style.top=Math.max(8,Math.min(e.clientY-r.height-8,innerHeight-r.height-8))+"px";setTimeout(()=>document.addEventListener("click",()=>menu.remove(),{once:true}),0)}
+function msgMenu(id,e){
+  const m=S.msgs.get(id);if(!m||m.deleted||m.status!="ok") return;const mine=m.sender_id==S.me.id;
+  const menu=document.createElement("div");menu.className="menu";menu.style.position="fixed";
+  menu.innerHTML=`<div class="rr">${EMOJIS.map(x=>`<button data-e="${x}" aria-label="React ${x}">${x}</button>`).join("")}</div><button class="it" data-a="rep">↩ Reply</button><button class="it" data-a="fwd">↪ Forward</button>${(m.body)?'<button class="it" data-a="cp">⧉ Copy</button>':""}${mine?'<button class="it" data-a="un">🗑 Unsend for everyone</button>':""}`;
+  menu.onclick=async ev=>{const b=ev.target.closest("button");if(!b) return;
+    if(b.dataset.e){const cur=(S.rx.get(id)||{})[S.me.id];
+      if(cur==b.dataset.e){await sb.from("reactions").delete().eq("message_id",id).eq("user_id",S.me.id);const x=S.rx.get(id);delete x[S.me.id]}
+      else{await sb.from("reactions").upsert({message_id:id,user_id:S.me.id,emoji:b.dataset.e});setRx({message_id:id,user_id:S.me.id,emoji:b.dataset.e})}drawMsgs("near")}
+    else if(b.dataset.a=="rep"){S.reply=m;drawReply();$("#tx")?.focus()}
+    else if(b.dataset.a=="fwd") forward(m);
+    else if(b.dataset.a=="cp") navigator.clipboard?.writeText(m.body);
+    else if(b.dataset.a=="un"&&confirm("Unsend this message for everyone?")){await sb.rpc("unsend",{m:id});m.deleted=true;m.body="";m.media_url=null;drawMsgs("near")}};
+  place(menu,e);
+}
+function forward(m){
+  const md=document.createElement("div");md.className="modal";
+  md.innerHTML=`<div class="sheet"><h3>Forward to…</h3>${S.convs.map(c=>`<button class="row" data-id="${c.id}"><div class="av">${ini(c.other.display_name)}</div><div class="m"><div class="n">${esc(c.other.display_name)}</div></div></button>`).join("")||'<div class="empty" style="padding:20px">No conversations</div>'}<button class="btn" style="margin-top:8px;background:var(--card)" id="cx">Cancel</button></div>`;
+  document.body.append(md);md.onclick=async e=>{
+    if(e.target==md||e.target.id=="cx") return md.remove();const r=e.target.closest(".row");if(!r) return;
+    const id=crypto.randomUUID();const {error}=await sb.from("messages").insert({id,conv_id:r.dataset.id,sender_id:S.me.id,body:m.body,media_url:m.media_url,media_type:m.media_type,forwarded:true});
+    md.remove();if(error) alert("Couldn't forward (you may be blocked)");loadConvs()};
+}
+function chatMenu(e){
+  const c=S.active,bl=S.blocked.includes(c.other.id);
+  const menu=document.createElement("div");menu.className="menu";menu.style.position="fixed";
+  menu.innerHTML=`<button class="it" data-a="bl">${bl?"Unblock":"Block"} @${esc(c.other.username)}</button><button class="it" data-a="dl">Delete conversation (from my inbox only)</button>`;
+  menu.onclick=async ev=>{const a=ev.target.dataset.a;
+    if(a=="bl"){if(bl) await sb.from("blocks").delete().eq("blocker",S.me.id).eq("blocked",c.other.id);else if(confirm("Block this user? They won't be able to message you.")) await sb.from("blocks").upsert({blocker:S.me.id,blocked:c.other.id});await loadConvs();openConv(c)}
+    if(a=="dl"&&confirm("Remove this conversation from your inbox? The other person keeps their copy.")){await sb.from("hidden").upsert({conv_id:c.id,user_id:S.me.id});S.active=null;$("#app").classList.remove("chat");$("#main").innerHTML='<div class="empty"><h2>Your messages</h2></div>';loadConvs()}};
+  place(menu,e);
+}
+async function settings(){
+  const {data:bl}=await sb.from("blocks").select("blocked");const ids=(bl||[]).map(b=>b.blocked);
+  const {data:ps}=ids.length?await sb.from("profiles").select("*").in("id",ids):{data:[]};
+  const md=document.createElement("div");md.className="modal";
+  md.innerHTML=`<div class="sheet"><h3>Settings</h3><div style="padding:0 12px"><b>Blocked accounts</b></div>${(ps||[]).map(p=>`<div class="row"><div class="m"><div class="n">@${esc(p.username)}</div></div><button data-u="${p.id}" style="color:var(--red)">Unblock</button></div>`).join("")||'<div class="p ghost" style="padding:8px 16px">No blocked accounts</div>'}
+  <div style="padding:12px;display:grid;gap:8px"><b>Change password</b><input id="np" type="password" placeholder="New password (min 8)" autocomplete="new-password"><button class="btn" id="cp">Update password</button><div class="err" id="pe"></div>
+  <button class="btn" id="lo">Log out</button><button class="btn" style="background:var(--card)" id="cl">Close</button></div></div>`;
+  document.body.append(md);
+  md.onclick=async e=>{if(e.target==md||e.target.id=="cl") md.remove();
+    if(e.target.dataset.u){await sb.from("blocks").delete().eq("blocker",S.me.id).eq("blocked",e.target.dataset.u);md.remove();await loadConvs();settings()}
+    if(e.target.id=="cp"){const {error}=await sb.auth.updateUser({password:$("#np").value});$("#pe").textContent=error?error.message:"Password updated ✓"}
+    if(e.target.id=="lo"){await sb.auth.signOut({scope:"global"});location.reload()}};
+}
+
+/* ---------- REALTIME ---------- */
+function subscribe(){
+  S.chan&&sb.removeChannel(S.chan);
+  S.chan=sb.channel("db")
+   .on("postgres_changes",{event:"INSERT",schema:"public",table:"messages"},({new:m})=>{
+      if(S.active?.id==m.conv_id){ upsertMsg(m); drawMsgs("near"); if(m.sender_id!=S.me.id) markRead(); }  // same id => overwrite, never duplicate
+      loadConvs();if(m.sender_id!=S.me.id&&document.hidden&&"Notification" in window&&Notification.permission=="granted") new Notification("New message");})
+   .on("postgres_changes",{event:"UPDATE",schema:"public",table:"messages"},({new:m})=>{if(S.msgs.has(m.id)){upsertMsg(m);drawMsgs("near")}})
+   .on("postgres_changes",{event:"*",schema:"public",table:"reactions"},({eventType,new:n,old:o})=>{
+      if(eventType=="DELETE"){const x=S.rx.get(o.message_id);if(x) delete x[o.user_id]}else setRx(n);drawMsgs("near")})
+   .subscribe(async st=>{
+      const bar=$("#offbar");
+      if(st=="SUBSCRIBED"){bar?.remove();if(S.active){await loadMsgs(true);} loadConvs()}   // resync after reconnect; Map keyed by id prevents duplicates
+      else if((st=="CLOSED"||st=="CHANNEL_ERROR"||st=="TIMED_OUT")&&!bar&&$("#app")) $("#app").insertAdjacentHTML("beforebegin",'<div class="off" id="offbar">Reconnecting…</div>')});
+}
+addEventListener("online",()=>S.me&&subscribe());
+if("Notification" in window&&Notification.permission=="default") document.addEventListener("click",()=>Notification.requestPermission(),{once:true});
+sb.auth.onAuthStateChange(ev=>{if(ev=="SIGNED_OUT") authView()});
+boot();
+</script></body></html>
