@@ -8,7 +8,7 @@
 :root{--bg:#0a0a0b;--panel:#121214;--card:#1b1b1f;--line:#26262b;--red:#d1122f;--red2:#7a0a1c;--tx:#f3f3f4;--mu:#8d8d96}
 *{box-sizing:border-box;margin:0}html,body{height:100%;height:100dvh}
 body{background:var(--bg);color:var(--tx);font:15px/1.4 -apple-system,"Segoe UI",Inter,system-ui,sans-serif;overflow:hidden}
-button,input{font:inherit;color:inherit}button{cursor:pointer;background:none;border:0}
+button,input{font:inherit;color:inherit}button{cursor:pointer;background:none;border:0;transition:transform .18s cubic-bezier(.2,.9,.3,1.3),opacity .15s}button:active{transform:scale(.92)}
 input{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%;outline:0}
 input:focus,button:focus-visible{outline:2px solid var(--red);outline-offset:1px}
 .btn{background:linear-gradient(135deg,var(--red),var(--red2));border-radius:12px;padding:12px;font-weight:600;width:100%}
@@ -24,15 +24,18 @@ input:focus,button:focus-visible{outline:2px solid var(--red);outline-offset:1px
 .top{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;font-weight:700;font-size:18px}
 .top button{font-size:20px;padding:4px 8px}.srch{padding:0 12px 8px}
 .list{overflow:auto;flex:1}
-.row{display:flex;gap:12px;padding:10px 16px;align-items:center;width:100%;text-align:left;transition:background .15s}
+.row:active{transform:scale(.985)}.row{display:flex;gap:12px;padding:10px 16px;align-items:center;width:100%;text-align:left;transition:background .15s}
 .row:hover,.row.on{background:var(--card)}.row .m{flex:1;min-width:0}.row .n{font-weight:600}
 .row .p{color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}.row.unr .p{color:var(--tx);font-weight:600}
 .dot{width:10px;height:10px;border-radius:50%;background:var(--red)}
 .main{display:flex;flex-direction:column;min-height:0;min-width:0;height:100%;overflow:hidden;background:var(--bg);position:relative}
-.head{flex:none;display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
+.head{flex:none;display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid #ffffff12;background:rgba(18,18,20,.75);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px)}
 .head .av{width:38px;height:38px}.head .back{display:none;font-size:22px}
 .msgs{flex:1 1 0;min-height:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:3px}
-.msg{max-width:75%;position:relative;animation:up .2s;align-self:flex-start}
+.msg{max-width:75%;position:relative;align-self:flex-start}.msg.new{animation:pop .36s cubic-bezier(.2,.9,.3,1.2)}.msg.me.new{transform-origin:100% 100%}.msg:not(.me).new{transform-origin:0 100%}
+@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.92)}}
+.tb{display:inline-flex;gap:4px;background:var(--card);border-radius:20px;padding:13px 15px;animation:pop .25s}.tb i{width:7px;height:7px;border-radius:50%;background:var(--mu);animation:bn 1.2s infinite}.tb i:nth-child(2){animation-delay:.15s}.tb i:nth-child(3){animation-delay:.3s}
+@keyframes bn{0%,60%,100%{transform:none;opacity:.45}30%{transform:translateY(-4px);opacity:1}}
 .msg.me{align-self:flex-end}
 .bub{background:var(--card);padding:8px 13px;border-radius:20px;word-break:break-word;white-space:pre-wrap;cursor:pointer}
 .me .bub{background:linear-gradient(135deg,var(--red),var(--red2))}
@@ -47,7 +50,7 @@ input:focus,button:focus-visible{outline:2px solid var(--red);outline-offset:1px
 .menu .rr{display:flex;gap:2px;padding:4px}.menu .rr button{font-size:22px;padding:2px 5px;border-radius:8px}.menu .rr button:hover{background:var(--line)}
 .menu .it{display:block;width:100%;text-align:left;padding:8px 12px;border-radius:8px}.menu .it:hover{background:var(--line)}
 .typing{flex:none;height:20px;padding:0 20px;color:var(--mu);font-size:12px}
-.comp{flex:none;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:var(--panel);border-top:1px solid var(--line)}
+.comp{flex:none;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(18,18,20,.75);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-top:1px solid #ffffff12}
 .rpl{display:flex;justify-content:space-between;font-size:12px;color:var(--mu);border-left:3px solid var(--red);padding:2px 8px;margin-bottom:6px}
 .bar{display:flex;gap:6px;align-items:center}.bar button{font-size:22px;padding:6px}.bar input{border-radius:22px}
 .pick{position:absolute;bottom:70px;left:12px;z-index:15}emoji-picker{--background:#1b1b1f;--border-color:#26262b;--indicator-color:#d1122f;height:340px;width:min(340px,92vw)}
@@ -70,7 +73,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $ = (s,e=document)=>e.querySelector(s), root=$("#root");
 const esc = s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const EMOJIS=["❤️","😂","😮","😢","😡","👍"];
-const S={me:null,convs:[],active:null,msgs:new Map(),rx:new Map(),reply:null,oldest:null,blocked:[],typingT:null,chan:null,tc:null};
+const S={me:null,convs:[],active:null,msgs:new Map(),rx:new Map(),reply:null,oldest:null,blocked:[],lseq:0,seen:new Set(),typing:false,typingT:null,chan:null,tc:null};
 const toEmail=u=>u.toLowerCase()+"@ember-dm.app";
 const ini=n=>esc((n||"?")[0].toUpperCase());
 const tm=d=>{d=new Date(d);return d.toDateString()==new Date().toDateString()?d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}):d.toLocaleDateString([],{month:"short",day:"numeric"})};
@@ -122,6 +125,7 @@ function shell(){
 
 /* ---------- INBOX ---------- */
 async function loadConvs(){
+  const seq=++S.lseq;
   const [{data:cs},{data:hid},{data:bl}]=await Promise.all([sb.from("conversations").select("*"),sb.from("hidden").select("*"),sb.from("blocks").select("blocked")]);
   S.blocked=(bl||[]).map(b=>b.blocked);
   const ids=[...new Set((cs||[]).map(c=>c.user_a==S.me.id?c.user_b:c.user_a))];
@@ -135,6 +139,7 @@ async function loadConvs(){
     const {data:l}=await q; const {count}=await sb.from("messages").select("id",{count:"exact",head:true}).eq("conv_id",c.id).neq("sender_id",S.me.id).is("read_at",null);
     return {...c,other,last:l?.[0],unread:count||0,hidden:hm[c.id]};
   }));
+  if(seq!==S.lseq) return;   // a newer refresh (or a delete) happened meanwhile: drop this stale result
   S.convs=out.filter(c=>c.last).sort((a,b)=>new Date(b.last.created_at)-new Date(a.last.created_at));
   drawList();
 }
@@ -156,11 +161,11 @@ async function search(v){
 
 /* ---------- CHAT ---------- */
 async function openConv(c){
-  S.active=c;S.msgs=new Map();S.rx=new Map();S.reply=null;S.oldest=null;
+  S.active=c;S.seen=new Set();S.typing=false;clearTimeout(S.tyc);S.msgs=new Map();S.rx=new Map();S.reply=null;S.oldest=null;
   $("#app").classList.add("chat");
   const blocked=S.blocked.includes(c.other.id);
   $("#main").innerHTML=`<div class="head"><button class="back" id="bk" aria-label="Back">←</button><div class="av">${ini(c.other.display_name)}</div><div style="flex:1"><b>${esc(c.other.display_name)}</b><div class="ghost" style="font-size:12px">@${esc(c.other.username)}</div></div><button id="more" aria-label="Chat options" style="font-size:20px">⋮</button></div>
-  <div class="msgs" id="ms"></div><div class="typing" id="ty"></div>
+  <div class="msgs" id="ms"></div>
   <div class="comp">${blocked?'<div class="empty">You blocked this account.</div>':`<div id="rpl"></div><div class="bar"><button id="emo" aria-label="Emoji">😊</button><button id="att" aria-label="Attach photo or video">📎</button><input type="file" id="fi" accept="image/*,video/*" hidden><input id="tx" placeholder="Message…" aria-label="Message" autocomplete="off"><button id="snd" aria-label="Send" style="color:var(--red)">➤</button></div>`}</div>`;
   $("#bk").onclick=()=>{$("#app").classList.remove("chat");S.active=null;drawList()};
   $("#more").onclick=e=>chatMenu(e);
@@ -174,17 +179,17 @@ async function openConv(c){
       $("emoji-picker",d).addEventListener("emoji-click",e=>{tx.value+=e.detail.unicode;tx.focus()})};
   }
   S.tc&&sb.removeChannel(S.tc);
-  S.tc=sb.channel("typing:"+c.id).on("broadcast",{event:"t"},({payload})=>{if(payload.u==S.me.id) return;const t=$("#ty");if(!t) return;t.textContent=c.other.display_name+" is typing…";clearTimeout(S.tyc);S.tyc=setTimeout(()=>t.textContent="",3000)}).subscribe();
+  S.tc=sb.channel("typing:"+c.id).on("broadcast",{event:"t"},({payload})=>{if(payload.u==S.me.id||S.active?.id!=c.id) return;if(!S.typing){S.typing=true;drawMsgs("near")}clearTimeout(S.tyc);S.tyc=setTimeout(()=>{S.typing=false;drawMsgs("near")},3000)}).subscribe();
   await loadMsgs(true); markRead();
 }
 async function loadMsgs(first){
   let q=sb.from("messages").select("*").eq("conv_id",S.active.id).order("created_at",{ascending:false}).limit(40);
   if(S.active.hidden) q=q.gt("created_at",S.active.hidden); if(S.oldest) q=q.lt("created_at",S.oldest);
   const {data}=await q; const rows=data||[];
-  rows.forEach(m=>S.msgs.set(m.id,{...m,status:"ok"}));
+  rows.forEach(m=>{S.msgs.set(m.id,{...m,status:"ok"});S.seen.add(m.id)});
   if(rows.length) S.oldest=rows[rows.length-1].created_at; S.more=rows.length==40;
   if(rows.length){const {data:rs}=await sb.from("reactions").select("*").in("message_id",rows.map(m=>m.id));(rs||[]).forEach(r=>setRx(r))}
-  drawMsgs(first?"bottom":"keep");
+  drawMsgs(first?"jump":"keep");
 }
 function setRx(r){const m=S.rx.get(r.message_id)||{};m[r.user_id]=r.emoji;S.rx.set(r.message_id,m)}
 function drawMsgs(scroll){
@@ -194,15 +199,15 @@ function drawMsgs(scroll){
   ms.innerHTML=(S.more?'<button class="ghost" id="old">Load older</button>':"")+list.map(m=>{
     const me=m.sender_id==S.me.id,rp=m.reply_to&&S.msgs.get(m.reply_to);
     const rx=Object.values(S.rx.get(m.id)||{});
-    const body=m.deleted?'<span class="del">Message unsent</span>':(m.media_type=="image"?`<img src="${esc(m.media_url)}" loading="lazy" alt="Photo">`:m.media_type=="video"?`<video src="${esc(m.media_url)}" controls preload="metadata"></video>`:"")+(m.body?esc(m.body):"");
+    const body=m.deleted?'<span class="del">Message unsent</span>':(m.media_type&&!m.media_url?'<span class="del">Uploading…</span>':m.media_type=="image"?`<img src="${esc(m.media_url)}" loading="lazy" alt="Photo">`:m.media_type=="video"?`<video src="${esc(m.media_url)}" controls preload="metadata"></video>`:"")+(m.body?esc(m.body):"");
     const st=!me?"":m.status=="sending"?"Sending…":m.status=="fail"?"Failed · tap to retry":m==lastMine?(m.read_at?"Seen":"Sent"):"";
-    return `<div class="msg ${me?"me":""}" id="m-${m.id}" data-id="${m.id}">${m.forwarded?'<div class="fw">↪ Forwarded</div>':""}${m.reply_to?`<div class="rp" data-j="${m.reply_to}">↩ ${rp?esc(rp.deleted?"Unsent message":prev(rp)).slice(0,60):"Original message"}</div>`:""}<div class="bub">${body}</div>${rx.length?`<div class="rx">${[...new Set(rx)].map(e=>`<span>${e}${rx.filter(x=>x==e).length>1?" "+rx.filter(x=>x==e).length:""}</span>`).join("")}</div>`:""}${st?`<div class="st ${m.status=="fail"?"fail":""}" data-r="${m.id}">${st}</div>`:""}</div>`}).join("")||'<div class="empty">Say hi 👋</div>';
+    return `<div class="msg ${me?"me":""} ${S.seen.has(m.id)?"":"new"}" id="m-${m.id}" data-id="${m.id}">${m.forwarded?'<div class="fw">↪ Forwarded</div>':""}${m.reply_to?`<div class="rp" data-j="${m.reply_to}">↩ ${rp?esc(rp.deleted?"Unsent message":prev(rp)).slice(0,60):"Original message"}</div>`:""}<div class="bub">${body}</div>${rx.length?`<div class="rx">${[...new Set(rx)].map(e=>`<span>${e}${rx.filter(x=>x==e).length>1?" "+rx.filter(x=>x==e).length:""}</span>`).join("")}</div>`:""}${st?`<div class="st ${m.status=="fail"?"fail":""}" data-r="${m.id}">${st}</div>`:""}</div>`}).join("")||'<div class="empty">Say hi 👋</div>';list.forEach(m=>S.seen.add(m.id));if(S.typing) ms.insertAdjacentHTML("beforeend",'<div class="msg"><div class="tb" aria-label="typing"><i></i><i></i><i></i></div></div>');
   ms.querySelectorAll(".bub").forEach(b=>b.onclick=e=>{if(e.target.tagName=="VIDEO") return;msgMenu(b.parentElement.dataset.id,e)});
   ms.querySelectorAll(".rp").forEach(r=>r.onclick=()=>{const t=$("#m-"+r.dataset.j);t&&t.scrollIntoView({behavior:"smooth",block:"center"})});
-  ms.querySelectorAll("[data-r]").forEach(r=>r.onclick=()=>{const m=S.msgs.get(r.dataset.r);m?.status=="fail"&&transmit(m)});
+  ms.querySelectorAll("[data-r]").forEach(r=>r.onclick=()=>{const m=S.msgs.get(r.dataset.r);if(m?.status!="fail") return;if(m.media_type&&!m.media_url){S.msgs.delete(m.id);drawMsgs("near");return alert("Upload failed. Please attach the file again.")}transmit(m)});
   const o=$("#old");if(o) o.onclick=async()=>{await loadMsgs(false)};
-  if(scroll=="bottom") ms.scrollTop=ms.scrollHeight; else if(scroll=="keep") ms.scrollTop=t+(ms.scrollHeight-h);
-  else if(scroll=="near"&&h-t-ms.clientHeight<150) ms.scrollTop=ms.scrollHeight;
+  if(scroll=="jump") ms.scrollTop=ms.scrollHeight; else if(scroll=="bottom") ms.scrollTo({top:ms.scrollHeight,behavior:"smooth"}); else if(scroll=="keep") ms.scrollTop=t+(ms.scrollHeight-h);
+  else if(scroll=="near"){ if(h-t-ms.clientHeight<150) ms.scrollTo({top:ms.scrollHeight,behavior:"smooth"}); else ms.scrollTop=t }
 }
 /* Dedupe: one message == one client UUID. Map keyed by id, DB primary key on id, retries reuse same id. */
 function upsertMsg(m){const old=S.msgs.get(m.id);S.msgs.set(m.id,{...(old||{}),...m,status:"ok"})}
@@ -262,7 +267,11 @@ function chatMenu(e){
   menu.innerHTML=`<button class="it" data-a="bl">${bl?"Unblock":"Block"} @${esc(c.other.username)}</button><button class="it" data-a="dl">Delete conversation (from my inbox only)</button>`;
   menu.onclick=async ev=>{const a=ev.target.dataset.a;
     if(a=="bl"){if(bl) await sb.from("blocks").delete().eq("blocker",S.me.id).eq("blocked",c.other.id);else if(confirm("Block this user? They won't be able to message you.")) await sb.from("blocks").upsert({blocker:S.me.id,blocked:c.other.id});await loadConvs();openConv(c)}
-    if(a=="dl"&&confirm("Remove this conversation from your inbox? The other person keeps their copy.")){await sb.from("hidden").upsert({conv_id:c.id,user_id:S.me.id});S.active=null;$("#app").classList.remove("chat");$("#main").innerHTML='<div class="empty"><h2>Your messages</h2></div>';loadConvs()}};
+    if(a=="dl"&&confirm("Remove this conversation from your inbox? The other person keeps their copy.")){S.convs=S.convs.filter(x=>x.id!=c.id);drawList();S.lseq++;
+      await sb.from("hidden").delete().eq("conv_id",c.id).eq("user_id",S.me.id);   // reset the marker so "hide since" is always NOW
+      const {error:he}=await sb.from("hidden").insert({conv_id:c.id,user_id:S.me.id});
+      if(he){alert("Couldn't delete the chat, please try again");loadConvs();return}
+      S.active=null;$("#app").classList.remove("chat");$("#main").innerHTML='<div class="empty"><h2>Your messages</h2></div>';loadConvs()}};
   place(menu,e);
 }
 async function settings(){
@@ -284,14 +293,14 @@ function subscribe(){
   S.chan&&sb.removeChannel(S.chan);
   S.chan=sb.channel("db")
    .on("postgres_changes",{event:"INSERT",schema:"public",table:"messages"},({new:m})=>{
-      if(S.active?.id==m.conv_id){ if(S.msgs.has(m.id)){upsertMsg(m)}else{upsertMsg(m)} drawMsgs("near"); if(m.sender_id!=S.me.id) markRead(); }  // same id => overwrite, never duplicate
+      if(m.sender_id!=S.me.id){S.typing=false;clearTimeout(S.tyc)} if(S.active?.id==m.conv_id){ if(S.msgs.has(m.id)){upsertMsg(m)}else{upsertMsg(m)} drawMsgs("near"); if(m.sender_id!=S.me.id) markRead(); }  // same id => overwrite, never duplicate
       loadConvs();if(m.sender_id!=S.me.id&&document.hidden&&"Notification" in window&&Notification.permission=="granted") new Notification("New message");})
    .on("postgres_changes",{event:"UPDATE",schema:"public",table:"messages"},({new:m})=>{if(S.msgs.has(m.id)){upsertMsg(m);drawMsgs("near")}})
    .on("postgres_changes",{event:"*",schema:"public",table:"reactions"},({eventType,new:n,old:o})=>{
       if(eventType=="DELETE"){const x=S.rx.get(o.message_id);if(x) delete x[o.user_id]}else setRx(n);drawMsgs("near")})
    .subscribe(async st=>{
       const bar=$("#offbar");
-      if(st=="SUBSCRIBED"){bar?.remove();if(S.active){await loadMsgs(true);} loadConvs()}   // resync after reconnect; Map keyed by id prevents duplicates
+      if(st=="SUBSCRIBED"){bar?.remove();if(S.active){S.oldest=null;await loadMsgs(false)} loadConvs()}   // resync after reconnect; Map keyed by id prevents duplicates
       else if((st=="CLOSED"||st=="CHANNEL_ERROR"||st=="TIMED_OUT")&&!bar&&$("#app")) $("#app").insertAdjacentHTML("beforebegin",'<div class="off" id="offbar">Reconnecting…</div>')});
 }
 addEventListener("online",()=>S.me&&subscribe());
